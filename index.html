@@ -4,391 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sloxx - Dice Game</title>
-    <style>
-        :root {
-            --red: #e74c3c;
-            --yellow: #f1c40f;
-            --green: #2ecc71;
-            --blue: #3498db;
-            --dark: #2c3e50;
-            --light: #ecf0f1;
-            --white: #ffffff;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark);
-            color: var(--white);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 { margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
-
-        .container {
-            max-width: 900px;
-            width: 100%;
-            background: #34495e;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
-
-        /* Dice Section */
-        .dice-section {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            background: #2c3e50;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        
-        .dice-group { display: flex; gap: 10px; align-items: center; }
-        
-        .die {
-            width: 50px; height: 50px;
-            border-radius: 10px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 24px; font-weight: bold;
-            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3);
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
-        }
-        .die.white { background: var(--white); color: var(--dark); }
-        .die.red { background: var(--red); color: white; }
-        .die.yellow { background: var(--yellow); color: var(--dark); text-shadow: none; }
-        .die.green { background: var(--green); color: white; }
-        .die.blue { background: var(--blue); color: white; }
-        
-        .controls { text-align: center; margin-bottom: 25px; }
-        button {
-            padding: 12px 24px; font-size: 16px; font-weight: bold;
-            border: none; border-radius: 6px; cursor: pointer;
-            background: #3498db; color: white;
-            transition: background 0.2s, transform 0.1s;
-        }
-        button:hover { background: #2980b9; }
-        button:active { transform: scale(0.95); }
-        button.reset { background: #e74c3c; margin-left: 10px; }
-        button.reset:hover { background: #c0392b; }
-
-        /* Board Section */
-        .board { display: flex; flex-direction: column; gap: 10px; }
-        .row {
-            display: flex; padding: 10px; border-radius: 8px;
-            gap: 5px; align-items: center; overflow-x: auto;
-        }
-        .row.red { background: var(--red); }
-        .row.yellow { background: var(--yellow); }
-        .row.green { background: var(--green); }
-        .row.blue { background: var(--blue); }
-
-        .cell {
-            min-width: 40px; height: 40px;
-            background: rgba(255,255,255,0.9);
-            color: var(--dark);
-            border-radius: 6px;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; font-size: 18px;
-            cursor: pointer; user-select: none;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .cell:hover { background: #fff; transform: translateY(-2px); }
-        .cell.checked {
-            background: transparent; color: white;
-            text-decoration: line-through;
-            border: 2px solid white;
-            opacity: 0.9;
-        }
-        .cell.disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        
-        .lock-cell {
-            min-width: 40px; height: 40px;
-            border-radius: 50%; border: 2px solid white;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 18px; margin-left: 10px;
-            background: transparent; color: white;
-        }
-        .lock-cell.locked { background: white; color: var(--dark); }
-
-        /* Penalties & Scoring */
-        .footer-section {
-            display: flex; justify-content: space-between;
-            margin-top: 25px; flex-wrap: wrap; gap: 20px;
-        }
-        
-        .penalties { display: flex; align-items: center; gap: 10px; }
-        .penalty-box {
-            width: 30px; height: 30px; border: 2px solid var(--white);
-            border-radius: 4px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold;
-        }
-        .penalty-box.checked::after { content: 'X'; font-size: 20px; color: var(--red); }
-
-        .scoring {
-            display: flex; gap: 10px; align-items: center;
-            background: #2c3e50; padding: 10px 20px; border-radius: 8px;
-        }
-        .score-box {
-            width: 40px; height: 40px; border-radius: 6px;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; border: 2px solid white; background: #34495e;
-        }
-        .score-box.red { border-color: var(--red); }
-        .score-box.yellow { border-color: var(--yellow); }
-        .score-box.green { border-color: var(--green); }
-        .score-box.blue { border-color: var(--blue); }
-        .score-box.total { border-color: white; background: white; color: var(--dark); font-size: 20px; width: 60px;}
-
-        @media (max-width: 768px) {
-            .cell { min-width: 35px; height: 35px; font-size: 14px; }
-            .dice-section { flex-direction: column; align-items: center; }
-            .footer-section { flex-direction: column; align-items: stretch; }
-            .scoring { flex-wrap: wrap; justify-content: center; }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>Sloxx</h1>
+            <p class="subtitle">A faster, longer game of numbers and dice</p>
+        </header>
 
-<div class="container">
-    <h1 style="text-align: center;">Sloxx</h1>
+        <div class="game-section">
+            <div class="controls">
+                <button id="rollBtn" class="btn btn-primary">Roll Dice</button>
+                <button id="resetBtn" class="btn btn-secondary">New Game</button>
+                <div class="game-status" id="gameStatus"></div>
+            </div>
 
-    <div class="controls">
-        <button onclick="rollDice()">Roll Dice</button>
-        <button class="reset" onclick="resetGame()">Reset Game</button>
-    </div>
+            <div class="dice-display">
+                <div class="dice-group">
+                    <h3>White Dice</h3>
+                    <div class="dice-container" id="whiteDiceContainer"></div>
+                </div>
+                <div class="dice-group">
+                    <h3>Color Dice</h3>
+                    <div class="dice-container" id="colorDiceContainer"></div>
+                </div>
+            </div>
 
-    <div class="dice-section">
-        <div class="dice-group">
-            <div class="die white" id="d-w1">?</div>
-            <div class="die white" id="d-w2">?</div>
-            <div class="die white" id="d-w3">?</div>
-        </div>
-        <div class="dice-group">
-            <div class="die red" id="d-r">?</div>
-            <div class="die yellow" id="d-y">?</div>
-            <div class="die green" id="d-g">?</div>
-            <div class="die blue" id="d-b">?</div>
-        </div>
-    </div>
-
-    <div class="board" id="board">
-        <!-- Rows generated by JS -->
-    </div>
-
-    <div class="footer-section">
-        <div class="penalties" id="penalties">
-            <span>Misthrows (-5 each):</span>
-            <div class="penalty-box" onclick="togglePenalty(0)"></div>
-            <div class="penalty-box" onclick="togglePenalty(1)"></div>
-            <div class="penalty-box" onclick="togglePenalty(2)"></div>
-            <div class="penalty-box" onclick="togglePenalty(3)"></div>
+            <div class="dice-selection">
+                <h3>Select 2-3 Dice</h3>
+                <div id="diceSelection" class="selection-grid"></div>
+                <div class="selection-actions">
+                    <button id="useSelectionBtn" class="btn btn-success" disabled>Use Selection</button>
+                    <button id="clearSelectionBtn" class="btn btn-outline">Clear</button>
+                </div>
+            </div>
         </div>
 
-        <div class="scoring">
-            <div class="score-box red" id="score-red">0</div> +
-            <div class="score-box yellow" id="score-yellow">0</div> +
-            <div class="score-box green" id="score-green">0</div> +
-            <div class="score-box blue" id="score-blue">0</div> -
-            <div class="score-box" id="score-pen">0</div> =
-            <div class="score-box total" id="score-total">0</div>
+        <div class="game-board">
+            <div class="scorecard player-1">
+                <h2>Player 1</h2>
+                <div class="penalties">
+                    <span class="penalty-label">Penalties:</span>
+                    <div class="penalty-markers" id="penalties1"></div>
+                </div>
+                <div class="rows-container" id="rows1"></div>
+                <div class="total-score" id="score1">Score: 0</div>
+            </div>
+
+            <div class="scorecard player-2">
+                <h2>Player 2</h2>
+                <div class="penalties">
+                    <span class="penalty-label">Penalties:</span>
+                    <div class="penalty-markers" id="penalties2"></div>
+                </div>
+                <div class="rows-container" id="rows2"></div>
+                <div class="total-score" id="score2">Score: 0</div>
+            </div>
+        </div>
+
+        <div class="rules-panel">
+            <h3>How to Play</h3>
+            <ul>
+                <li>Roll 3 white dice + 4 color dice</li>
+                <li>Each turn, select 2-3 dice that sum to mark a number</li>
+                <li>All players can mark using white dice combinations</li>
+                <li>Active player can also use white + one color die</li>
+                <li>Mark numbers in order within each row (left→right for Red/Yellow, right→left for Green/Blue)</li>
+                <li>Lock a row when it has 7+ crosses and includes the final number</li>
+                <li>Game ends when 2 rows lock or a player gets 4 penalties</li>
+            </ul>
         </div>
     </div>
-</div>
 
-<script>
-    const ROWS = [
-        { color: 'red', type: 'asc' },
-        { color: 'yellow', type: 'asc' },
-        { color: 'green', type: 'desc' },
-        { color: 'blue', type: 'desc' }
-    ];
-
-    let gameState = {
-        red: { checks: [], locked: false },
-        yellow: { checks: [], locked: false },
-        green: { checks: [], locked: false },
-        blue: { checks: [], locked: false },
-        penalties: [false, false, false, false]
-    };
-
-    function initBoard() {
-        const board = document.getElementById('board');
-        board.innerHTML = '';
-
-        ROWS.forEach(rowInfo => {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = `row ${rowInfo.color}`;
-            
-            // Generate numbers 2 to 18 (asc) or 18 to 2 (desc)
-            for (let i = 0; i < 17; i++) {
-                const val = rowInfo.type === 'asc' ? i + 2 : 18 - i;
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.innerText = val;
-                cell.dataset.index = i;
-                cell.dataset.color = rowInfo.color;
-                cell.onclick = () => handleCellClick(rowInfo.color, i);
-                rowDiv.appendChild(cell);
-            }
-
-            const lock = document.createElement('div');
-            lock.className = 'lock-cell';
-            lock.id = `lock-${rowInfo.color}`;
-            lock.innerHTML = '🔒';
-            rowDiv.appendChild(lock);
-
-            board.appendChild(rowDiv);
-        });
-        updateBoardUI();
-    }
-
-    function handleCellClick(color, index) {
-        if (gameState[color].locked && index !== 16) return; // Row locked
-
-        const checks = gameState[color].checks;
-        const isChecked = checks.includes(index);
-
-        if (isChecked) {
-            // Unchecking: Only allow unchecking the HIGHEST index to prevent gaps
-            const maxChecked = Math.max(...checks);
-            if (index !== maxChecked) return;
-
-            gameState[color].checks = checks.filter(i => i !== index);
-            if (index === 16) gameState[color].locked = false; // Unlock if final number unchecked
-        } else {
-            // Checking
-            const maxChecked = checks.length > 0 ? Math.max(...checks) : -1;
-            if (index < maxChecked) return; // Cannot go backwards
-
-            // Special rule for the last number (index 16)
-            if (index === 16) {
-                if (checks.length < 5) {
-                    alert("You need at least 5 crosses in this row before locking it!");
-                    return;
-                }
-                gameState[color].locked = true;
-            }
-            gameState[color].checks.push(index);
-        }
-        
-        updateBoardUI();
-        calculateScores();
-    }
-
-    function togglePenalty(index) {
-        gameState.penalties[index] = !gameState.penalties[index];
-        const boxes = document.querySelectorAll('.penalty-box');
-        boxes[index].classList.toggle('checked', gameState.penalties[index]);
-        calculateScores();
-    }
-
-    function updateBoardUI() {
-        ROWS.forEach(rowInfo => {
-            const color = rowInfo.color;
-            const cells = document.querySelectorAll(`.cell[data-color="${color}"]`);
-            const maxChecked = gameState[color].checks.length > 0 ? Math.max(...gameState[color].checks) : -1;
-
-            cells.forEach((cell, i) => {
-                cell.classList.remove('checked', 'disabled');
-                
-                if (gameState[color].checks.includes(i)) {
-                    cell.classList.add('checked');
-                } else if (i < maxChecked || gameState[color].locked) {
-                    cell.classList.add('disabled');
-                }
-            });
-
-            const lock = document.getElementById(`lock-${color}`);
-            if (gameState[color].locked) {
-                lock.classList.add('locked');
-            } else {
-                lock.classList.remove('locked');
-            }
-        });
-    }
-
-    function calculateScores() {
-        let totalScore = 0;
-
-        ROWS.forEach(row => {
-            const color = row.color;
-            let count = gameState[color].checks.length;
-            // If row is locked, add +1 to count for the lock symbol itself
-            if (gameState[color].locked) count++; 
-            
-            // Triangular number formula: n(n+1)/2
-            const score = (count * (count + 1)) / 2;
-            document.getElementById(`score-${color}`).innerText = score;
-            totalScore += score;
-        });
-
-        const penCount = gameState.penalties.filter(Boolean).length;
-        const penScore = penCount * 5;
-        document.getElementById('score-pen').innerText = penScore;
-
-        totalScore -= penScore;
-        document.getElementById('score-total').innerText = totalScore;
-    }
-
-    function rollDice() {
-        const diceIds = ['d-w1', 'd-w2', 'd-w3', 'd-r', 'd-y', 'd-g', 'd-b'];
-        const colors = ['red', 'yellow', 'green', 'blue'];
-        
-        // Setup animation
-        diceIds.forEach(id => {
-            document.getElementById(id).style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
-            document.getElementById(id).innerText = '...';
-        });
-
-        setTimeout(() => {
-            diceIds.forEach((id, index) => {
-                const isColored = index >= 3;
-                const colorIndex = index - 3;
-                
-                // If colored die and row is locked, don't roll it (show 'X')
-                if (isColored && gameState[colors[colorIndex]].locked) {
-                    document.getElementById(id).innerText = 'X';
-                } else {
-                    document.getElementById(id).innerText = Math.floor(Math.random() * 6) + 1;
-                }
-                document.getElementById(id).style.transform = 'rotate(0deg)';
-            });
-        }, 300);
-    }
-
-    function resetGame() {
-        if(confirm("Are you sure you want to reset the game?")) {
-            gameState = {
-                red: { checks: [], locked: false },
-                yellow: { checks: [], locked: false },
-                green: { checks: [], locked: false },
-                blue: { checks: [], locked: false },
-                penalties: [false, false, false, false]
-            };
-            
-            const pBoxes = document.querySelectorAll('.penalty-box');
-            pBoxes.forEach(box => box.classList.remove('checked'));
-            
-            const diceIds = ['d-w1', 'd-w2', 'd-w3', 'd-r', 'd-y', 'd-g', 'd-b'];
-            diceIds.forEach(id => document.getElementById(id).innerText = '?');
-
-            updateBoardUI();
-            calculateScores();
-        }
-    }
-
-    // Initialize the game on load
-    initBoard();
-    calculateScores();
-
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
